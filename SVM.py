@@ -2,6 +2,35 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
+#graph the data and support vectors
+def graphIt():
+    return
+
+#calculates support vector
+def SVM():
+    return 0
+
+#classifies whether person makes more or equal to/less than $50k/year
+def classifyIncome():
+    #call SVM; true = >50k; false = <=50k;
+    return 0
+
+#updates weights with sigmoid function
+def mySigmoid():
+    return 0
+
+#tests accuracy on testing data
+def testAccuracy():
+    return 0
+
+#select features based on how it affects test results
+def ftSelect():
+    return
+
+#perform analysis to get optimal performance
+def getResults():
+    return
+
 def getLikelihood(train, header):
     return 1
 
@@ -33,7 +62,7 @@ with open("adult.train.csv") as csvfile:
             headers = row
         if ' ?' not in row:
             trainData.append(row)
-            
+
 
 print('Headers : ')
 print(headers)
@@ -86,7 +115,7 @@ probs = {}
 # these inner dictionaries contain possible headers as keys and probabilities of making 50k or more as values
 #for i, key in enumerate(avgs.keys()):
 for item in trainData.T:
-    
+
     if item[0] in avgs.keys():
         probs[item[0]] = []
 
