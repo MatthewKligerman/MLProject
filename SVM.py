@@ -22,13 +22,7 @@ def getAccuracy(ypred, ytest):
     return numTrue/(numTrue+numFalse)
 
 #graph the data and support vectors
-def scatterPlot(x, y, xlabel):
-
-    plt.plot(x, y)
-    plt.xlabel(xlabel)
-    plt.ylabel('Probability')
-    plt.show()
-    
+def graphIt():
     return
 
 #calculates support vector:
@@ -265,12 +259,18 @@ xtest = dfTest.drop('earnings', axis=1)
 #xtest = xtest[1:][:]
 ytest = dfTest['earnings']
 #ytest= ytest[1:]
-print('ytest : ')
+#print('ytest : ')
 print(ytest)
 
 svclassifier = SVC(kernel='linear')
-svclassifier.fit(list(xtrain.values)[:][:10], list(ytrain.values)[:10])
+svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
 ypred = svclassifier.predict(list(xtest.values))
 
+print(len(ypred[:]))
+#print(list(ypred[:10]))
+print(len(list(ytest[:])))
+#print(list(ytest[:10]))
 skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
 print('Accuracy', str(skAccuracy))
+
+#print(dfTrain)
