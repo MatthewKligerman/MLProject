@@ -12,10 +12,21 @@ def getAccuracy(ypred, ytest):
 
     for val1, val2 in ypred, ytest:
 
-        if val1 == val2:
-            numTrue += 1
+        if val1 == 1:
+
+            if '>50k' is in val2:
+                numTrue += 1
+
+            else:
+                numFalse += 1
+
         else:
-            numFalse += 1
+
+            if '>50k' is in val2:
+                numFalse += 1
+
+            else:
+                numTrue +=1 
 
     return numTrue/(numTrue+numFalse)
 
@@ -216,7 +227,7 @@ ytrain = dfTrain['earnings']
 #svclassifier = SVC(kernel='linear')
 #svclassifier.fit(list(xtrain.values)[:][1:10], list(ytrain.values)[1:10])
 
-for column in list(dfTest.columns):
+for column in list(dfTest.columns)[:-1]:
 
     if column in avgList:
 
@@ -234,13 +245,15 @@ xtest = dfTest.drop('earnings', axis=1)
 #xtest = xtest[1:][:]
 ytest = dfTest['earnings']
 #ytest= ytest[1:]
+print('ytest : ')
+print(ytest)
 
 svclassifier = SVC(kernel='linear')
-svclassifier.fit(list(xtrain.values)[:][:10], list(ytrain.values)[:10])
+svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
 ypred = svclassifier.predict(list(xtest.values))
 
 print(ypred)
-skAccuracy = getAccuracy(ypred, ytest)
+skAccuracy = getAccuracy(ypred, list(ytest.values))
 print('Accuracy', str(skAccuracy))
 
 #print(dfTrain)
