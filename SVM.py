@@ -11,22 +11,12 @@ def getAccuracy(ypred, ytest):
     numFalse = 0
 
     for val1, val2 in ypred, ytest:
-
-        if val1 == 1:
-
-            if '>50k' is in val2:
+        if val1 == 1 and '>50k' in val2:
                 numTrue += 1
-
-            else:
-                numFalse += 1
-
+        if val1 == 0 and '<=50k' in val2:
+            numTrue += 1
         else:
-
-            if '>50k' is in val2:
-                numFalse += 1
-
-            else:
-                numTrue +=1 
+            numFalse += 1
 
     return numTrue/(numTrue+numFalse)
 
@@ -149,10 +139,32 @@ print('Testing Data : ')
 testData = np.asarray(testData)
 print(testData)
 
+#AGE BINNING
+for i, item in enumerate(trainData[1:]):
+    if int(item[0]) >= 0 and int(item[0]) < 10:
+        trainData[i+1][0] = 0;
+    elif int(item[0]) >= 10 and int(item[0]) < 20:
+        trainData[i+1][0] = 1;
+    elif int(item[0]) >= 20 and int(item[0]) < 30:
+        trainData[i+1][0] = 2;
+    elif int(item[0]) >= 30 and int(item[0]) < 40:
+        trainData[i+1][0] = 3;
+    elif int(item[0]) >= 40 and int(item[0]) < 50:
+        trainData[i+1][0] = 4;
+    elif int(item[0]) >= 50 and int(item[0]) < 60:
+        trainData[i+1][0] = 5;
+    elif int(item[0]) >= 60 and int(item[0]) < 70:
+        trainData[i+1][0] = 6;
+    elif int(item[0]) >= 70:
+        trainData[i+1][0] = 7;
+
+
+
+
 print('\n\n')
 # Average for each feature independently: workclass, education, marital-status, occupation, relationship, race, sex,
 # native-country
-avgList = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country', 'earnings']
+avgList = ['age', 'workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country', 'earnings']
 avgs =  {}
 
 # creates dictionary, each containing the header as a key with the value as an array of possible characteristics
@@ -196,6 +208,7 @@ probs['other'] = avgProbability(trainData)
 print()
 print(probs)
 print()
+
 print()
 
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
@@ -249,11 +262,12 @@ print('ytest : ')
 print(ytest)
 
 svclassifier = SVC(kernel='linear')
-svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
+svclassifier.fit(list(xtrain.values)[:][:10], list(ytrain.values)[:10])
 ypred = svclassifier.predict(list(xtest.values))
 
 print(ypred)
-skAccuracy = getAccuracy(ypred, list(ytest.values))
+print(list(ytest[:10]))
+skAccuracy = getAccuracy(ypred, ytest[:10])
 print('Accuracy', str(skAccuracy))
 
-#print(dfTrain)
+#print(dfTrain)'''
