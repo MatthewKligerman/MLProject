@@ -22,7 +22,13 @@ def getAccuracy(ypred, ytest):
     return numTrue/(numTrue+numFalse)
 
 #graph the data and support vectors
-def graphIt():
+def scatterPlot(x, y, xlabel):
+
+    plt.plot(x, y)
+    plt.xlabel(xlabel)
+    plt.ylabel('Probability')
+    plt.show()
+    
     return
 
 #calculates support vector:
