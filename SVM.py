@@ -25,7 +25,7 @@ def graphIt():
 
 #calculates support vector:
 def SVM(a, x, y):
-    
+
     result = 0
     sumA = np.sum(a)
 
@@ -205,12 +205,16 @@ for column in list(dfTrain.columns):
 #print(dfTrain)
 
 xtrain = dfTrain.drop('earnings', axis=1)
+print('shortened')
+print(list(xtrain.values)[:][:10])
+print('xtrain')
+#print(list(xtrain.values))
 #xtrain = xtrain[1:][:]
 ytrain = dfTrain['earnings']
 #ytrain = ytrain[1:]
 
-svclassifier = SVC(kernel='linear')
-svclassifier.fit(list(xtrain.values)[:][1:10], list(ytrain.values)[1:10])
+#svclassifier = SVC(kernel='linear')
+#svclassifier.fit(list(xtrain.values)[:][1:10], list(ytrain.values)[1:10])
 
 for column in list(dfTest.columns):
 
@@ -232,17 +236,11 @@ ytest = dfTest['earnings']
 #ytest= ytest[1:]
 
 svclassifier = SVC(kernel='linear')
-svclassifier.fit(list(xtrain.values)[:][1:], list(ytrain.values)[1:])
-ypred = svclassifier.predict(list(xtest.values)[:][1:])
+svclassifier.fit(list(xtrain.values)[:][:10], list(ytrain.values)[:10])
+ypred = svclassifier.predict(list(xtest.values))
 
 print(ypred)
-#print(dfTrain)
-"""
-trainX = trainData[1:-1]
-trainY = trainData[-1]
-print('trainx')
-print(trainX)
-print('trainy')
-print(trainY)
+skAccuracy = getAccuracy(ypred, ytest)
+print('Accuracy', str(skAccuracy))
 
-"""
+#print(dfTrain)
