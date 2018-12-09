@@ -1,10 +1,17 @@
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+
+#how to generate??
+xvals = [];
+yvals = [];
 
 #graph the data and support vectors
 def graphIt():
-    return
+    plt.figure(figsize=(8,6))
+	plt.scatter(setosa_x,setosa_y,marker='+',color='green')
+	plt.show()
 
 #calculates support vector
 def SVM():
@@ -53,9 +60,7 @@ headers = []
 trainData = []
 
 with open("adult.train.csv") as csvfile:
-
     reader = csv.reader(csvfile) # change contents to floats
-
     for i, row in enumerate(reader): # each row is a list
 
         if i == 0:
@@ -75,14 +80,12 @@ print(trainData)
 testData = []
 
 with open("adult.test.csv") as csvfile:
-
     reader = csv.reader(csvfile) # change contents to floats
-
     for i, row in enumerate(reader): # each row is a list
 
         #if i == 0:
             #headers = row
-        if ' ?' not in row:
+        if '?' not in row:
             testData.append(row)
 
 
@@ -98,9 +101,7 @@ avgList = ['workclass', 'education', 'marital-status', 'occupation', 'relationsh
 avgs =  {}
 
 # creates dictionary, each containing the header as a key with the value as an array of possible characteristics
-
 for i, item in enumerate(trainData.T):
-
     if headers[i] in avgList:
         avgs[headers[i]] = []
         for info in item:
@@ -125,6 +126,7 @@ for item in trainData.T:
     else:
         probs[item[0]] = []
         probs[item[0]].append(getLikelihood(trainData, item[0]))
+
 
 
 print()
