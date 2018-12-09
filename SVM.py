@@ -10,8 +10,8 @@ yvals = [];
 #graph the data and support vectors
 def graphIt():
     plt.figure(figsize=(8,6))
-	plt.scatter(setosa_x,setosa_y,marker='+',color='green')
-	plt.show()
+    plt.scatter(setosa_x,setosa_y,marker='+',color='green')
+    plt.show()
 
 #calculates support vector
 def SVM():
