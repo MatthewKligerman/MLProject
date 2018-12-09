@@ -10,10 +10,11 @@ def getAccuracy(ypred, ytest):
     numTrue = 0
     numFalse = 0
 
-    for val1, val2 in ypred, ytest:
-        if val1 == 1 and '>50k' in val2:
-                numTrue += 1
-        if val1 == 0 and '<=50k' in val2:
+    for val1, val2 in zip(ypred, ytest):
+
+        if int(val1) == 1 and '>50K' in val2:
+            numTrue += 1
+        elif int(val1) == 0 and '<=50K' in val2:
             numTrue += 1
         else:
             numFalse += 1
@@ -265,9 +266,5 @@ svclassifier = SVC(kernel='linear')
 svclassifier.fit(list(xtrain.values)[:][:10], list(ytrain.values)[:10])
 ypred = svclassifier.predict(list(xtest.values))
 
-print(ypred)
-print(list(ytest[:10]))
-skAccuracy = getAccuracy(ypred, ytest[:10])
+skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
 print('Accuracy', str(skAccuracy))
-
-#print(dfTrain)'''
