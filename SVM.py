@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
+from matplotlib import colors
+from matplotlib.ticker import PercentFormatter
 
 def getAccuracy(ypred, ytest):
 
