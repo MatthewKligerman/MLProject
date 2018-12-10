@@ -5,6 +5,18 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import random as rnd
+import decimal
+
+def drange(x, y, jump):
+
+    fList = []
+
+    while x <= y:
+        fList += x
+        yield float(x)
+        x += decimal.Decimal(jump)
+
+    return fList
 
 def getAccuracy(ypred, ytest):
 
@@ -22,8 +34,18 @@ def getAccuracy(ypred, ytest):
 
     return numTrue/(numTrue+numFalse)
 
-#graph the data and support vectors
-def graphIt():
+def barGraph(x, y):
+
+    ylabel = drange(0.0, 1.0, 0.05)
+    x_pos = len(x)
+
+    plt.bar(x = x_pos, height = y, width = 0.25, bottom = 0, align='center', alpha=0.5)#, tick_label = ylabel)
+    #plt.xticks(y_pos, x)
+    plt.ylabel('Probability')
+    plt.title('Probability of making >$50k')
+
+    plt.show()
+
     return
 
 #calculates support vector:
@@ -333,6 +355,15 @@ print()
 
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
 dfTest = pd.DataFrame(data = testData[1:, :], columns = testData[0, :])
+
+for item in trainData.T:
+
+    yList = []
+
+    for av in probs[item[0]].keys():
+        yList.append(av)
+
+    barGraph( probs[item[0]].keys(), yList)
 
 count = 1
 
