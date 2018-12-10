@@ -23,19 +23,7 @@ def getAccuracy(ypred, ytest):
     return numTrue/(numTrue+numFalse)
 
 #graph the data and support vectors
-#graph the data and support vectors
-def barGraph(x, y, xlabel, numBins):
-
-    objects = (xlabel)
-    y_pos = np.arange(len(objects))
-    
-    plt.bar(y_pos, y, align='center', alpha=0.5)
-    plt.xticks(y_pos, objects)
-    plt.ylabel('Probability')
-    plt.title('Probability of making >$50k')
-
-    plt.show()
-
+def graphIt():
     return
 
 #calculates support vector:
@@ -72,38 +60,102 @@ def getResults():
 
 def getLikelihood(train, header):
     return 0
-'''
-def predict(X):
+
+
+#CLASSIFY STARTS
+def fit(X, y):
+    # Initialization
+    n, d = X.shape[0], X.shape[1]
+    alpha = np.zeros((n))
+    C = 1.0
+    kernel = 'linear'
+    count = 0
+    epsilon=0.001
+    max_iter=10000
+    while True:
+        count += 1
+        alpha_prev = np.copy(alpha)
+        for j in range(0, n):
+            i = get_rnd_int(0, n-1, j) # Get random int i~=j
+            x_i, x_j, y_i, y_j = X[i,:], X[j,:], y[i], y[j]
+            k_ij = kernel(x_i, x_i) + kernel(x_j, x_j) - 2 * kernel(x_i, x_j)
+            if k_ij == 0:
+                continue
+            alpha_prime_j, alpha_prime_i = alpha[j], alpha[i]
+            (L, H) = compute_L_H(C, alpha_prime_j, alpha_prime_i, y_j, y_i)
+
+            # Compute model parameters
+            w = calc_w(alpha, y, X)
+            b = calc_b(X, y, w)
+
+            # Compute E_i, E_j
+            E_i = E(x_i, y_i, w, b)
+            E_j = E(x_j, y_j, w, b)
+
+            # Set new alpha values
+            alpha[j] = alpha_prime_j + float(y_j * (E_i - E_j))/k_ij
+            alpha[j] = max(alpha[j], L)
+            alpha[j] = min(alpha[j], H)
+
+            alpha[i] = alpha_prime_i + y_i*y_j * (alpha_prime_j - alpha[j])
+
+        # Check convergence
+        diff = np.linalg.norm(alpha - alpha_prev)
+        if diff < epsilon:
+            break
+
+        if count >= max_iter:
+            print("Iteration number exceeded the max of %d iterations" % (max_iter))
+            return
+    # Compute final model parameters
+    b = calc_b(X, y, w)
+    if self.kernel_type == 'linear':
+        w = calc_w(alpha, y, X)
+    # Get support vectors
+    alpha_idx = np.where(alpha > 0)[0]
+    support_vectors = X[alpha_idx, :]
+    return support_vectors, count
+
+def predict(X, w, b):
     return h(X, w, b)
+
 def calc_b(X, y, w):
     b_tmp = y - np.dot(w.T, X.T)
     return np.mean(b_tmp)
+
 def calc_w(alpha, y, X):
     return np.dot(X.T, np.multiply(alpha,y))
+
 # Prediction
 def h(X, w, b):
     return np.sign(np.dot(w.T, X.T) + b).astype(int)
+
 # Prediction error
-def E(self, x_k, y_k, w, b):
-    return self.h(x_k, w, b) - y_k
-def compute_L_H(self, C, alpha_prime_j, alpha_prime_i, y_j, y_i):
+def E(x_k, y_k, w, b):
+    return h(x_k, w, b) - y_k
+
+def compute_L_H(C, alpha_prime_j, alpha_prime_i, y_j, y_i):
     if(y_i != y_j):
         return (max(0, alpha_prime_j - alpha_prime_i), min(C, C - alpha_prime_i + alpha_prime_j))
     else:
         return (max(0, alpha_prime_i + alpha_prime_j - C), min(C, alpha_prime_i + alpha_prime_j))
-def get_rnd_int(self, a,b,z):
+
+def get_rnd_int(a,b,z):
     i = z
     cnt=0
     while i == z and cnt<1000:
         i = rnd.randint(a,b)
         cnt=cnt+1
     return i
+
 # Define kernels
-def kernel_linear(self, x1, x2):
+def kernel_linear(x1, x2):
     return np.dot(x1, x2.T)
-def kernel_quadratic(self, x1, x2):
+def kernel_quadratic(x1, x2):
     return (np.dot(x1, x2.T) ** 2)
-'''
+
+#CLASSIFY ENDS
+
 def avgProbability(train):
 
     trueSum = 0
