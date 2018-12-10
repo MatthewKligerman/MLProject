@@ -5,7 +5,6 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import random as rnd
-#import copy
 import decimal
 
 def drange(x, y, jump):
@@ -52,141 +51,140 @@ def barGraph(x, y, category):
 
     return
 
-
-#calculates support vector:
-def SVM(a, x, y):
-
-    result = 0
-    sumA = np.sum(a)
-
-    return 0
-
-#classifies whether person makes more or equal to/less than $50k/year
-def classifyIncome(w, u, b):
-    #call SVM; true = >50k; false = <=50k;
-    if w*u+b>=0:
-        return '>50k'
-    else:
-        return '<=50k'
-
-#updates weights with sigmoid function
-def getWeights(a, x, y):
-    return 0
-
-#tests accuracy on testing data
-def testAccuracy():
-    return 0
-
-#select features based on how it affects test results
-def ftSelect():
-    return
-
-#perform analysis to get optimal performance
-def getResults():
-    return
-
 def getLikelihood(train, header):
     return 0
 
 
 #CLASSIFY STARTS
-def fit(X, y):
+def fit_data(data, y):
     # Initialization
-    n, d = X.shape[0], X.shape[1]
-    alpha = np.zeros((n))
-    C = 1.0
-    kernel_type= 'linear'
+    num = data.shape[0]
+
+    alpha = np.zeros((num))
+    constant = 1.0
+    kernel_type = 'linear'
+    
     kernels = {
         'linear' : kernel_linear,
         'quadratic' : kernel_quadratic
     }
+    
     kernel = kernels[kernel_type]
     count = 0
-    epsilon=0.001
-    max_iter=10000
+    step = 0.001
+    loops =10000
+
     while True:
+
         count += 1
-        alpha_prev = np.copy(alpha)
-        for j in range(0, n):
-            i = get_rnd_int(0, n-1, j) # Get random int i~=j
-            x_i, x_j, y_i, y_j = X[i,:], X[j,:], y[i], y[j]
-            k_ij = kernel(x_i, x_i) + kernel(x_j, x_j) - 2 * kernel(x_i, x_j)
-            if k_ij == 0:
+        previous_alpha = np.copy(alpha)
+
+        for j in range(0, num):
+
+            i = random(0, num-1, j)
+            x_i = data[i,:]
+            x_j = data[j,:]
+            y_i = y[i]
+            y_j = y[j]
+
+            kernel_trick = kernel(x_i, x_i) + kernel(x_j, x_j) - 2 * kernel(x_i, x_j)
+            
+            if kernel_trick == 0:
                 continue
-            alpha_prime_j, alpha_prime_i = alpha[j], alpha[i]
-            (L, H) = compute_L_H(C, alpha_prime_j, alpha_prime_i, y_j, y_i)
+            
+            hyper_alpha_j = alpha[j]
+            hyper_alpha_i = alpha[i]
+            (L, H) = get_LH(constant, hyper_alpha_j, hyper_alpha_i, y_j, y_i)
 
-            # Compute model parameters
-            w = calc_w(alpha, y, X)
-            b = calc_b(X, y, w)
+            #Creating the model
+            weights = get_weights(alpha, y, data)
+            b = get_b(data, y, weights)
 
-            # Compute E_i, E_j
-            E_i = E(x_i, y_i, w, b)
-            E_j = E(x_j, y_j, w, b)
+            #obtaining errors
+            error_i = error(x_i, y_i, weights, b)
+            error_j = error(x_j, y_j, weights, b)
 
-            # Set new alpha values
-            alpha[j] = alpha_prime_j + float(y_j * (E_i - E_j))/k_ij
+            #obtaining new alpha values
+            alpha[j] = hyper_alpha_j + float(y_j * (error_i - error_j))/kernel_trick
             alpha[j] = max(alpha[j], L)
             alpha[j] = min(alpha[j], H)
+            alpha[i] = hyper_alpha_i + y_i * y_j * (hyper_alpha_j - alpha[j])
 
-            alpha[i] = alpha_prime_i + y_i*y_j * (alpha_prime_j - alpha[j])
-
-        # Check convergence
-        diff = np.linalg.norm(alpha - alpha_prev)
-        if diff < epsilon:
+        diff = np.linalg.norm(alpha - previous_alpha)
+        if diff < step:
             break
-
-        if count >= max_iter:
-            print("Iteration number exceeded the max of %d iterations" % (max_iter))
+        if count >= loops:
             return
-    # Compute final model parameters
-    b = calc_b(X, y, w)
+
+    b = get_b(data, y, weights)
     if kernel_type == 'linear':
-        w = calc_w(alpha, y, X)
-    # Get support vectors
-    alpha_idx = np.where(alpha > 0)[0]
-    support_vectors = X[alpha_idx, :]
+        weights = get_weights(alpha, y, data)
 
-    x = predict(X, w, b)
-    print(x)
+    alpha_loc = np.where(alpha > 0)[0]
+    support_vectors = data[alpha_loc, :]
 
+    data_pred = predict(data, weights, b)
+
+    for i, element in enumerate(data_pred):
+        if element == -1:
+            data_pred[i] = 0
+
+    print('Prediction Values:', data_pred)
+
+    new_y = []
+    for i, element in enumerate(y):
+        if element == 1:
+            new_y.append('>50K')
+        else:
+            new_y.append('<=50K')
+
+
+    accuracy = getAccuracy(data_pred, new_y)
+    print('Classify Accuracy:', accuracy)
     return support_vectors, count
 
-def predict(X, w, b):
-    return h(X, w, b)
+#Get the prediction values
+def predict(data, weights, b):
+    return predict_calc(data, weights, b)
 
-def calc_b(X, y, w):
-    b_tmp = y - np.dot(w.T, X.T)
-    return np.mean(b_tmp)
+#Calculate b
+def get_b(data, y, weights):
+    new_b = y - np.dot(weights.T, data.T)
+    return np.mean(new_b)
 
-def calc_w(alpha, y, X):
-    return np.dot(X.T, np.multiply(alpha,y))
+#Calculate the weights
+def get_weights(alpha, y, data):
+    return np.dot(data.T, np.multiply(alpha,y))
 
-# Prediction
-def h(X, w, b):
-    return np.sign(np.dot(w.T, X.T) + b).astype(int)
+#Calculate the prediction values
+def predict_calc(data, weights, b):
+    return np.sign(np.dot(weights.T, data.T) + b).astype(int)
 
-# Prediction error
-def E(x_k, y_k, w, b):
-    return h(x_k, w, b) - y_k
+#Calculate the error
+def error(x_kernel, y_kernel, weights, b):
+    return predict_calc(x_kernel, weights, b) - y_kernel
 
-def compute_L_H(C, alpha_prime_j, alpha_prime_i, y_j, y_i):
+#Calculate formula
+def get_LH(constant, hyper_alpha_j, hyper_alpha_i, y_j, y_i):
     if(y_i != y_j):
-        return (max(0, alpha_prime_j - alpha_prime_i), min(C, C - alpha_prime_i + alpha_prime_j))
+        return (max(0, hyper_alpha_j - hyper_alpha_i), min(constant, constant - hyper_alpha_i + hyper_alpha_j))
     else:
-        return (max(0, alpha_prime_i + alpha_prime_j - C), min(C, alpha_prime_i + alpha_prime_j))
+        return (max(0, hyper_alpha_i + hyper_alpha_j - constant), min(constant, hyper_alpha_i + hyper_alpha_j))
 
-def get_rnd_int(a,b,z):
-    i = z
-    cnt=0
-    while i == z and cnt<1000:
+#create a random number
+def random(a,b,c):
+    i = c
+    count = 0
+    while i == c and count<1000:
         i = rnd.randint(a,b)
-        cnt=cnt+1
+        count += 1
     return i
 
-# Define kernels
+#Kernel trick for linear function
 def kernel_linear(x1, x2):
     return np.dot(x1, x2.T)
+
+#Kernel trick for quadratic function
 def kernel_quadratic(x1, x2):
     return (np.dot(x1, x2.T) ** 2)
 
@@ -315,17 +313,6 @@ for i, item in enumerate(trainData[1:]):
     elif int(item[12]) >= 50:
         trainData[i+1][12] = '>=50'
 
-#Earnings
-'''
-trainData2 = trainData.copy()
-trainData2 = trainData2[1:]
-for i, item in enumerate(trainData2[:]):
-    if '<=50K' in item[14]:
-        trainData2[i][14] = 0
-    else:
-        trainData2[i][14] = 1
-
-print(trainData2[0:5])'''
 print('\n\n')
 # Average for each feature independently: workclass, education, marital-status, occupation, relationship, race, sex,
 # native-country
@@ -401,42 +388,28 @@ for column in list(dfTrain.columns):
 
 trainData2 = dfTrain.values
 print(trainData2.T[-1])
-fit(trainData2.astype(float), trainData2.T[-1].astype(float))
-'''
-#print(dfTrain)
+fit_data(trainData2.astype(float), trainData2.T[-1].astype(float))
+print()
+print()
+
+
 xtrain = dfTrain.drop('earnings', axis=1)
-print('shortened')
-print(list(xtrain.values)[:][:10])
-print('xtrain')
-#print(list(xtrain.values))
-#xtrain = xtrain[1:][:]
 ytrain = dfTrain['earnings']
-#ytrain = ytrain[1:]
-#svclassifier = SVC(kernel='linear')
-#svclassifier.fit(list(xtrain.values)[:][1:10], list(ytrain.values)[1:10])
+
 for column in list(dfTest.columns)[:-1]:
     if column in avgList:
         for i, item in enumerate(dfTest[column]):
-            count += 1
             if item not in probs[column].keys():
                 dfTest[column][i] = probs['other']
             else:
                 dfTest[column][i] = probs[column][item][0]
-    print(column)
+
 xtest = dfTest.drop('earnings', axis=1)
-#xtest = xtest[1:][:]
 ytest = dfTest['earnings']
-#ytest= ytest[1:]
-#print('ytest : ')
-print(ytest)
+
 svclassifier = SVC(kernel='linear')
 svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
 ypred = svclassifier.predict(list(xtest.values))
-print(len(ypred[:]))
-#print(list(ypred[:10]))
-print(len(list(ytest[:])))
-#print(list(ytest[:10]))
+
 skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
-print('Accuracy', str(skAccuracy))
-'''
-#print(dfTrain)
+print('Learned Accuracy:', str(skAccuracy))
