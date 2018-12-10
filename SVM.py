@@ -23,7 +23,19 @@ def getAccuracy(ypred, ytest):
     return numTrue/(numTrue+numFalse)
 
 #graph the data and support vectors
-def graphIt():
+#graph the data and support vectors
+def barGraph(x, y, xlabel, numBins):
+
+    objects = (xlabel)
+    y_pos = np.arange(len(objects))
+    
+    plt.bar(y_pos, y, align='center', alpha=0.5)
+    plt.xticks(y_pos, objects)
+    plt.ylabel('Probability')
+    plt.title('Probability of making >$50k')
+
+    plt.show()
+
     return
 
 #calculates support vector:
