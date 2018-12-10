@@ -95,11 +95,12 @@ def fit(X, y):
     n, d = X.shape[0], X.shape[1]
     alpha = np.zeros((n))
     C = 1.0
+    kernel_type= 'linear'
     kernels = {
         'linear' : kernel_linear,
         'quadratic' : kernel_quadratic
     }
-    kernel = kernels['linear']
+    kernel = kernels[kernel_type]
     count = 0
     epsilon=0.001
     max_iter=10000
@@ -140,13 +141,14 @@ def fit(X, y):
             return
     # Compute final model parameters
     b = calc_b(X, y, w)
-    if self.kernel_type == 'linear':
+    if kernel_type == 'linear':
         w = calc_w(alpha, y, X)
     # Get support vectors
     alpha_idx = np.where(alpha > 0)[0]
     support_vectors = X[alpha_idx, :]
 
-    print(predict(X, w, b))
+    x = predict(X, w, b)
+    print(x)
 
     return support_vectors, count
 
