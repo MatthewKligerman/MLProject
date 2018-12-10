@@ -43,6 +43,7 @@ def barGraph(x, y, category):
     plt.figure(figsize=(10,6))
     plt.bar(x = x_pos, height = y, width = 0.25, bottom = 0, align='center', alpha=0.5, orientation='vertical')#, tick_label = ylabel)
     plt.xticks(x_pos, x)
+    plt.tick_params(labelsize=6)
     plt.ylabel('Probability')
     plt.xlabel(category)
     plt.title('Probability of making >$50k for each '+category)
@@ -366,17 +367,16 @@ print()
 #print(trainData2.T[-1])
 #print(trainData2[:][:-1])
 #fit(trainData2, trainData2.T[-1])
-''''
+
 for item in trainData.T:
 
     yList = []
 
     for av in probs[item[0]].keys():
-        print('avg : ', probs[item[0]][av][0])
         yList.append(probs[item[0]][av][0])
-        print(item[0])
+        
     barGraph(probs[item[0]].keys(), yList, str(item[0]))
-'''
+   
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
 dfTest = pd.DataFrame(data = testData[1:, :], columns = testData[0, :])
 
