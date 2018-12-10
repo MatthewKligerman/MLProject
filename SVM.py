@@ -5,18 +5,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import random as rnd
-import decimal
-
-def drange(x, y, jump):
-
-    fList = []
-
-    while x <= y:
-        fList += x
-        yield float(x)
-        x += decimal.Decimal(jump)
-
-    return fList
+#import copy
 
 def getAccuracy(ypred, ytest):
 
@@ -34,18 +23,8 @@ def getAccuracy(ypred, ytest):
 
     return numTrue/(numTrue+numFalse)
 
-def barGraph(x, y):
-
-    ylabel = drange(0.0, 1.0, 0.05)
-    x_pos = len(x)
-
-    plt.bar(x = x_pos, height = y, width = 0.25, bottom = 0, align='center', alpha=0.5)#, tick_label = ylabel)
-    #plt.xticks(y_pos, x)
-    plt.ylabel('Probability')
-    plt.title('Probability of making >$50k')
-
-    plt.show()
-
+#graph the data and support vectors
+def graphIt():
     return
 
 #calculates support vector:
@@ -90,7 +69,11 @@ def fit(X, y):
     n, d = X.shape[0], X.shape[1]
     alpha = np.zeros((n))
     C = 1.0
-    kernel = 'linear'
+    kernels = {
+        'linear' : kernel_linear,
+        'quadratic' : kernel_quadratic
+    }
+    kernel = kernels['linear']
     count = 0
     epsilon=0.001
     max_iter=10000
@@ -136,6 +119,9 @@ def fit(X, y):
     # Get support vectors
     alpha_idx = np.where(alpha > 0)[0]
     support_vectors = X[alpha_idx, :]
+
+    print(predict(X, w, b))
+
     return support_vectors, count
 
 def predict(X, w, b):
@@ -183,8 +169,7 @@ def avgProbability(train):
     trueSum = 0
     falseSum = 0
 
-    for item in train.T[-1]:
-
+    for item in train.T[-1][1:]:
         if '>50K' in item:
             trueSum += 1
 
@@ -302,7 +287,16 @@ for i, item in enumerate(trainData[1:]):
     elif int(item[12]) >= 50:
         trainData[i+1][12] = '>=50'
 
+#Earnings
+trainData2 = trainData.copy()
+trainData2 = trainData2[1:]
+for i, item in enumerate(trainData2[:]):
+    if '<=50K' in item[14]:
+        trainData2[i][14] = 0
+    else:
+        trainData2[i][14] = 1
 
+print(trainData2[0:5])
 print('\n\n')
 # Average for each feature independently: workclass, education, marital-status, occupation, relationship, race, sex,
 # native-country
@@ -353,17 +347,13 @@ print()
 print(probs)
 print()
 
+#print(trainData2.T[-1])
+#print(trainData2[:][:-1])
+fit(trainData2, trainData2.T[-1])
+
+'''
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
 dfTest = pd.DataFrame(data = testData[1:, :], columns = testData[0, :])
-
-for item in trainData.T:
-
-    yList = []
-
-    for av in probs[item[0]].keys():
-        yList.append(av)
-
-    barGraph( probs[item[0]].keys(), yList)
 
 count = 1
 
@@ -422,5 +412,5 @@ print(len(list(ytest[:])))
 #print(list(ytest[:10]))
 skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
 print('Accuracy', str(skAccuracy))
-
+'''
 #print(dfTrain)
