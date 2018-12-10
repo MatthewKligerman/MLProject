@@ -57,13 +57,13 @@ def getLikelihood(train, header):
 
 
 #CLASSIFY STARTS
-def fit_data(data, y):
+def fit_data(data, y, k = 'linear'):
     # Initialization
     num = data.shape[0]
 
     alpha = np.zeros((num))
-    constant = 1.0
-    kernel_type = 'linear'
+    penalty = 1.0
+    kernel_type = k
     
     kernels = {
         'linear' : kernel_linear,
@@ -95,7 +95,7 @@ def fit_data(data, y):
             
             hyper_alpha_j = alpha[j]
             hyper_alpha_i = alpha[i]
-            (L, H) = get_LH(constant, hyper_alpha_j, hyper_alpha_i, y_j, y_i)
+            (L, H) = get_LH(penalty, hyper_alpha_j, hyper_alpha_i, y_j, y_i)
 
             #Creating the model
             weights = get_weights(alpha, y, data)
@@ -141,7 +141,11 @@ def fit_data(data, y):
 
 
     accuracy = getAccuracy(data_pred, new_y)
-    print('Classify Accuracy:', accuracy)
+
+    if k == 'linear':
+        print('Classify Linear Accuracy:', accuracy)
+    else:
+        print('Classify Quadratic Accuracy:', accuracy)
     return support_vectors, count
 
 #Get the prediction values
@@ -166,11 +170,11 @@ def error(x_kernel, y_kernel, weights, b):
     return predict_calc(x_kernel, weights, b) - y_kernel
 
 #Calculate formula
-def get_LH(constant, hyper_alpha_j, hyper_alpha_i, y_j, y_i):
+def get_LH(penalty, hyper_alpha_j, hyper_alpha_i, y_j, y_i):
     if(y_i != y_j):
-        return (max(0, hyper_alpha_j - hyper_alpha_i), min(constant, constant - hyper_alpha_i + hyper_alpha_j))
+        return (max(0, hyper_alpha_j - hyper_alpha_i), min(penalty, penalty - hyper_alpha_i + hyper_alpha_j))
     else:
-        return (max(0, hyper_alpha_i + hyper_alpha_j - constant), min(constant, hyper_alpha_i + hyper_alpha_j))
+        return (max(0, hyper_alpha_i + hyper_alpha_j - penalty), min(penalty, hyper_alpha_i + hyper_alpha_j))
 
 #create a random number
 def random(a,b,c):
@@ -367,16 +371,17 @@ print()
 #print(trainData2.T[-1])
 #print(trainData2[:][:-1])
 #fit(trainData2, trainData2.T[-1])
-
+''''
 for item in trainData.T:
 
     yList = []
 
     for av in probs[item[0]].keys():
+        print('avg : ', probs[item[0]][av][0])
         yList.append(probs[item[0]][av][0])
-        
+        print(item[0])
     barGraph(probs[item[0]].keys(), yList, str(item[0]))
-   
+'''
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
 dfTest = pd.DataFrame(data = testData[1:, :], columns = testData[0, :])
 
@@ -388,7 +393,8 @@ for column in list(dfTrain.columns):
 
 trainData2 = dfTrain.values
 print(trainData2.T[-1])
-fit_data(trainData2.astype(float), trainData2.T[-1].astype(float))
+fit_data(trainData2.astype(float), trainData2.T[-1].astype(float), 'linear')
+fit_data(trainData2.astype(float), trainData2.T[-1].astype(float), 'quadratic')
 print()
 print()
 
@@ -412,4 +418,11 @@ svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
 ypred = svclassifier.predict(list(xtest.values))
 
 skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
-print('Learned Accuracy:', str(skAccuracy))
+print('Learned Linear Accuracy:', str(skAccuracy))
+
+svclassifier = SVC(kernel='poly', degree = 2)
+svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
+ypred = svclassifier.predict(list(xtest.values))
+
+skAccuracy = getAccuracy(ypred[:], list(ytest[:]))
+print('Learned Quadratic Accuracy:', str(skAccuracy))
