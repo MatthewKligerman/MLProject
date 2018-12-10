@@ -4,8 +4,7 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
-from matplotlib import colors
-from matplotlib.ticker import PercentFormatter
+import random as rnd
 
 def getAccuracy(ypred, ytest):
 
@@ -61,7 +60,38 @@ def getResults():
 
 def getLikelihood(train, header):
     return 0
-
+'''
+def predict(X):
+    return h(X, w, b)
+def calc_b(X, y, w):
+    b_tmp = y - np.dot(w.T, X.T)
+    return np.mean(b_tmp)
+def calc_w(alpha, y, X):
+    return np.dot(X.T, np.multiply(alpha,y))
+# Prediction
+def h(X, w, b):
+    return np.sign(np.dot(w.T, X.T) + b).astype(int)
+# Prediction error
+def E(self, x_k, y_k, w, b):
+    return self.h(x_k, w, b) - y_k
+def compute_L_H(self, C, alpha_prime_j, alpha_prime_i, y_j, y_i):
+    if(y_i != y_j):
+        return (max(0, alpha_prime_j - alpha_prime_i), min(C, C - alpha_prime_i + alpha_prime_j))
+    else:
+        return (max(0, alpha_prime_i + alpha_prime_j - C), min(C, alpha_prime_i + alpha_prime_j))
+def get_rnd_int(self, a,b,z):
+    i = z
+    cnt=0
+    while i == z and cnt<1000:
+        i = rnd.randint(a,b)
+        cnt=cnt+1
+    return i
+# Define kernels
+def kernel_linear(self, x1, x2):
+    return np.dot(x1, x2.T)
+def kernel_quadratic(self, x1, x2):
+    return (np.dot(x1, x2.T) ** 2)
+'''
 def avgProbability(train):
 
     trueSum = 0
@@ -145,29 +175,52 @@ print(testData)
 #AGE BINNING
 for i, item in enumerate(trainData[1:]):
     if int(item[0]) >= 0 and int(item[0]) < 10:
-        trainData[i+1][0] = 0;
+        trainData[i+1][0] = '0-9'
     elif int(item[0]) >= 10 and int(item[0]) < 20:
-        trainData[i+1][0] = 1;
+        trainData[i+1][0] = '10-19'
     elif int(item[0]) >= 20 and int(item[0]) < 30:
-        trainData[i+1][0] = 2;
+        trainData[i+1][0] = '20-29'
     elif int(item[0]) >= 30 and int(item[0]) < 40:
-        trainData[i+1][0] = 3;
+        trainData[i+1][0] = '30-39'
     elif int(item[0]) >= 40 and int(item[0]) < 50:
-        trainData[i+1][0] = 4;
+        trainData[i+1][0] = '40-49'
     elif int(item[0]) >= 50 and int(item[0]) < 60:
-        trainData[i+1][0] = 5;
+        trainData[i+1][0] = '50-59'
     elif int(item[0]) >= 60 and int(item[0]) < 70:
-        trainData[i+1][0] = 6;
+        trainData[i+1][0] = '60-69'
     elif int(item[0]) >= 70:
-        trainData[i+1][0] = 7;
+        trainData[i+1][0] = '>=70'
 
+#Gain binnigng
+for i, item in enumerate(trainData[1:]):
+    if int(item[10]) == 0:
+        trainData[i+1][10] = 'None'
+    else:
+        trainData[i+1][10] = 'Gain'
 
+#Loss binninig
+for i, item in enumerate(trainData[1:]):
+    if int(item[11]) == 0:
+        trainData[i+1][11] = 'None'
+    else:
+        trainData[i+1][11] = 'Loss'
+
+#Hours per week binnning
+for i, item in enumerate(trainData[1:]):
+    if int(item[12]) >= 0 and int(item[12]) < 20:
+        trainData[i+1][12] = '0-19'
+    elif int(item[12]) >= 20 and int(item[12]) < 35:
+        trainData[i+1][12] = '20-24'
+    elif int(item[12]) >= 35 and int(item[12]) < 50:
+        trainData[i+1][12] = '35-49'
+    elif int(item[12]) >= 50:
+        trainData[i+1][12] = '>=50'
 
 
 print('\n\n')
 # Average for each feature independently: workclass, education, marital-status, occupation, relationship, race, sex,
 # native-country
-avgList = ['age', 'workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country', 'earnings']
+avgList = ['age', 'workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'earnings']
 avgs =  {}
 
 # creates dictionary, each containing the header as a key with the value as an array of possible characteristics
@@ -175,7 +228,6 @@ avgs =  {}
 for i, item in enumerate(trainData.T):
 
     if headers[i] in avgList:
-
         avgs[headers[i]] = []
 
         for info in item:
@@ -183,8 +235,11 @@ for i, item in enumerate(trainData.T):
             if info not in avgs[headers[i]]:
 
                 if '?' not in info and info not in headers[i]:
-
                     avgs[headers[i]].append(info)
+
+
+
+print(avgs)
 
 probs = {}
 
@@ -210,8 +265,6 @@ probs['other'] = avgProbability(trainData)
 
 print()
 print(probs)
-print()
-
 print()
 
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
