@@ -314,6 +314,7 @@ for i, item in enumerate(trainData[1:]):
         trainData[i+1][12] = '>=50'
 
 #Earnings
+'''
 trainData2 = trainData.copy()
 trainData2 = trainData2[1:]
 for i, item in enumerate(trainData2[:]):
@@ -322,7 +323,7 @@ for i, item in enumerate(trainData2[:]):
     else:
         trainData2[i][14] = 1
 
-print(trainData2[0:5])
+print(trainData2[0:5])'''
 print('\n\n')
 # Average for each feature independently: workclass, education, marital-status, occupation, relationship, race, sex,
 # native-country
@@ -375,8 +376,8 @@ print()
 
 #print(trainData2.T[-1])
 #print(trainData2[:][:-1])
-fit(trainData2, trainData2.T[-1])
-
+#fit(trainData2, trainData2.T[-1])
+''''
 for item in trainData.T:
 
     yList = []
@@ -390,20 +391,17 @@ for item in trainData.T:
 dfTrain = pd.DataFrame(data = trainData[1:, :],  columns = trainData[0, :]) # index = trainData[1:, 0],
 dfTest = pd.DataFrame(data = testData[1:, :], columns = testData[0, :])
 
-count = 1
-
 for column in list(dfTrain.columns):
-
     if column in avgList:
-
         for i, item in enumerate(dfTrain[column]):
-            count += 1
-            dfTrain[column][i] = probs[column][item][0]
+            dfTrain[column][i] = probs[column][item][0]  
 
-    print(column)
 
+trainData2 = dfTrain.values
+print(trainData2.T[-1])
+fit(trainData2.astype(float), trainData2.T[-1].astype(float))
+'''
 #print(dfTrain)
-
 xtrain = dfTrain.drop('earnings', axis=1)
 print('shortened')
 print(list(xtrain.values)[:][:10])
@@ -412,35 +410,26 @@ print('xtrain')
 #xtrain = xtrain[1:][:]
 ytrain = dfTrain['earnings']
 #ytrain = ytrain[1:]
-
 #svclassifier = SVC(kernel='linear')
 #svclassifier.fit(list(xtrain.values)[:][1:10], list(ytrain.values)[1:10])
-
 for column in list(dfTest.columns)[:-1]:
-
     if column in avgList:
-
         for i, item in enumerate(dfTest[column]):
             count += 1
             if item not in probs[column].keys():
                 dfTest[column][i] = probs['other']
-
             else:
                 dfTest[column][i] = probs[column][item][0]
-
     print(column)
-
 xtest = dfTest.drop('earnings', axis=1)
 #xtest = xtest[1:][:]
 ytest = dfTest['earnings']
 #ytest= ytest[1:]
 #print('ytest : ')
 print(ytest)
-
 svclassifier = SVC(kernel='linear')
 svclassifier.fit(list(xtrain.values)[:][:], list(ytrain.values)[:])
 ypred = svclassifier.predict(list(xtest.values))
-
 print(len(ypred[:]))
 #print(list(ypred[:10]))
 print(len(list(ytest[:])))
